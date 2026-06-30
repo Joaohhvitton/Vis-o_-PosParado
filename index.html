@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel POS Parado · Redeflex OPCOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand__mark">R</span>
+      <div class="brand__text">
+        <span class="brand__name">Redeflex</span>
+        <span class="brand__sub">OPCOM · POS PARADA</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav__item is-active" data-view="dashboard">
+        <span class="nav__icon" aria-hidden="true">&#9632;</span> Visão Geral
+      </button>
+      <button class="nav__item" data-view="mensageria">
+        <span class="nav__icon" aria-hidden="true">&#9993;</span> Mensageria
+      </button>
+      <button class="nav__item" data-view="retorno">
+        <span class="nav__icon" aria-hidden="true">&#8635;</span> Retorno de Vendas
+      </button>
+      <button class="nav__item" data-view="base">
+        <span class="nav__icon" aria-hidden="true">&#9776;</span> Base Consolidada
+      </button>
+      <button class="nav__item" data-view="naolocalizados">
+        <span class="nav__icon" aria-hidden="true">&#9888;</span> Não Localizados
+      </button>
+    </nav>
+
+    <div class="sidebar__foot">
+      <div class="sidebar__foot-row">
+        <span>Campanha</span>
+        <strong>16–20 Jun 2026</strong>
+      </div>
+      <div class="sidebar__foot-row">
+        <span>Atualizado em</span>
+        <strong id="updatedAt">—</strong>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar__title">
+        <h1 id="viewTitle">Visão Geral</h1>
+        <p id="viewSubtitle">Reativação de terminais parados via mensageria · resultado de retorno de venda</p>
+      </div>
+      <div class="topbar__meta">
+        <div class="pill">2.337 clientes acionados</div>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+
+      <!-- ============ VIEW: DASHBOARD ============ -->
+      <section class="view is-active" id="view-dashboard">
+
+        <div class="receipts" id="kpiReceipts"><!-- injected --></div>
+
+        <div class="grid grid--2">
+          <div class="card">
+            <div class="card__head">
+              <h2>Funil de mensageria</h2>
+              <p>Quantidade de clientes por etapa máxima alcançada</p>
+            </div>
+            <div class="card__body">
+              <div class="chart-note">
+                <span><span class="dot" style="background:#9C2B41"></span>Etapas concluídas com sucesso</span>
+                <span><span class="dot" style="background:#BD5048"></span>Falha no envio</span>
+              </div>
+              <div class="chart-box"><canvas id="chartFunnel"></canvas></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h2>Retorno de venda</h2>
+              <p>Clientes localizados na base geral, pós-campanha</p>
+            </div>
+            <div class="card__body card__body--center">
+              <div class="chart-box chart-box--sm"><canvas id="chartDonut"></canvas></div>
+              <ul class="legend" id="donutLegend"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid--2">
+          <div class="card">
+            <div class="card__head">
+              <h2>Taxa de retorno por etapa do funil</h2>
+              <p>O quanto a etapa de entrega influencia a volta às vendas</p>
+            </div>
+            <div class="card__body">
+              <div class="chart-note">
+                <span><span class="dot" style="background:#D7A93C"></span>% que voltou a vender</span>
+                <span><span class="dot" style="background:#BD5048"></span>Etapa de falha</span>
+              </div>
+              <div class="chart-box"><canvas id="chartStageRate"></canvas></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h2>Tempo até o retorno</h2>
+              <p>Dias entre o disparo e a primeira transação seguinte</p>
+            </div>
+            <div class="card__body">
+              <div class="chart-box"><canvas id="chartHist"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h2>Leitura do resultado</h2>
+          </div>
+          <div class="card__body">
+            <p class="insight" id="insightText"></p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============ VIEW: MENSAGERIA ============ -->
+      <section class="view" id="view-mensageria">
+        <div class="grid grid--2">
+          <div class="card">
+            <div class="card__head">
+              <h2>Funil detalhado</h2>
+              <p>Etapa, volume e participação sobre o total disparado</p>
+            </div>
+            <div class="card__body">
+              <table class="table" id="tblFunnel"></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__head">
+              <h2>Motivos de falha de envio</h2>
+              <p id="falhaSubtitle"></p>
+            </div>
+            <div class="card__body">
+              <table class="table" id="tblFalhas"></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h2>Situação detalhada (texto original do provedor)</h2>
+          </div>
+          <div class="card__body">
+            <table class="table" id="tblSituacoes"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: RETORNO ============ -->
+      <section class="view" id="view-retorno">
+        <div class="grid grid--3" id="retornoSummary"><!-- injected mini receipts --></div>
+
+        <div class="grid grid--2">
+          <div class="card">
+            <div class="card__head">
+              <h2>Retorno por supervisor</h2>
+              <p>Top 15 por volume de clientes na campanha</p>
+            </div>
+            <div class="card__body">
+              <table class="table table--ranked" id="tblSupervisor"></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__head">
+              <h2>Retorno por cidade</h2>
+              <p>Top 15 por volume de clientes na campanha</p>
+            </div>
+            <div class="card__body">
+              <table class="table table--ranked" id="tblCidade"></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h2>Retorno por vendedor</h2>
+            <p>Top 15 por volume de clientes na campanha</p>
+          </div>
+          <div class="card__body">
+            <table class="table table--ranked" id="tblVendedor"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: BASE CONSOLIDADA ============ -->
+      <section class="view" id="view-base">
+        <div class="card">
+          <div class="card__head card__head--row">
+            <div>
+              <h2>Base consolidada</h2>
+              <p>Uma linha por cliente · <span id="baseCount">0</span> registros</p>
+            </div>
+            <button class="btn" id="btnExportCsv">Exportar CSV</button>
+          </div>
+
+          <div class="filters">
+            <input type="search" id="fSearch" class="filters__search" placeholder="Buscar por SGV, nome, contato, cidade…">
+            <select id="fStatus" class="filters__select">
+              <option value="">Etapa: todas</option>
+            </select>
+            <select id="fVoltou" class="filters__select">
+              <option value="">Retorno: todos</option>
+              <option value="true">Voltou a vender</option>
+              <option value="false">Não voltou</option>
+              <option value="null">Não localizado</option>
+            </select>
+            <select id="fCidade" class="filters__select">
+              <option value="">Cidade: todas</option>
+            </select>
+          </div>
+
+          <div class="card__body table-scroll">
+            <table class="table table--data" id="tblBase">
+              <thead>
+                <tr>
+                  <th data-key="sgv">SGV</th>
+                  <th data-key="fantasia">Cliente</th>
+                  <th data-key="cidade">Cidade</th>
+                  <th data-key="vendedor">Vendedor</th>
+                  <th data-key="dataDisparo">Disparo</th>
+                  <th data-key="statusFunil">Etapa</th>
+                  <th data-key="diasParado">Dias parado</th>
+                  <th data-key="voltou">Retorno</th>
+                  <th data-key="diasRetorno">Dias p/ retorno</th>
+                </tr>
+              </thead>
+              <tbody id="baseTbody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: NAO LOCALIZADOS ============ -->
+      <section class="view" id="view-naolocalizados">
+        <div class="card">
+          <div class="card__head">
+            <h2>Clientes não localizados na base geral</h2>
+            <p><span id="nlCount">0</span> registros · SGV pode estar desativado, cancelado ou divergente entre as bases</p>
+          </div>
+          <div class="card__body table-scroll">
+            <table class="table table--data" id="tblNaoLocalizados">
+              <thead>
+                <tr>
+                  <th>SGV</th><th>Telefone</th><th>Contato</th><th>Disparo</th><th>Etapa</th>
+                </tr>
+              </thead>
+              <tbody id="nlTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/vendor/chart.umd.js"></script>
+<script src="js/vendor/chartjs-plugin-datalabels.min.js"></script>
+<script src="data/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
